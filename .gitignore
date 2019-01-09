@@ -1,0 +1,9 @@
+.idea/
+.project
+app/search_engine/.idea/
+app/search_engine/.project
+*.DS_Store
+docker-compose.override.yml
+
+docker/php/ssh/*
+!docker/php/ssh/.gitkeep
