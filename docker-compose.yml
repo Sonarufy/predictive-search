@@ -50,6 +50,7 @@ services:
         environment:
             MYSQL_USER: root
             MYSQL_ROOT_PASSWORD: root
+        command: --max_allowed_packet=32505856
         volumes_from:
             - data
         networks:

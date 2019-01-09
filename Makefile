@@ -1,6 +1,6 @@
 DOCKER_COMPOSE   = docker-compose
 DOCKER           = docker
-DOCKER_PREFIX    = fm_search
+DOCKER_PREFIX    = so_search
 
 DOCKER_PS_A      = $(DOCKER) ps -a
 DOCKER_PS_AQ     = $(DOCKER) ps -a -q
@@ -46,8 +46,14 @@ cli: ## Access docker cli
 assets_min: ## Install/Update the assets with minify
 	$(EXEC_PHP) "$(PROJ_DIR) && npm install && bundle install && npm run prod"
 
+create_db: ## doctrine:database:create
+	$(EXEC_PHP) "$(PROJ_DIR) && $(CONSOLE_EXEC) doctrine:database:create"
+
 update_db: ## doctrine:schema:update
 	$(EXEC_PHP) "$(PROJ_DIR) && $(CONSOLE_EXEC) doctrine:schema:update --force"
+
+populate_db: ## load fixtures from sql file
+	$(EXEC_PHP) "$(PROJ_DIR) && $(CONSOLE_EXEC) doctrine:fixtures:load"
 
 chmod: ## Sets cache and log folders rights
 	$(EXEC_PHP) "$(PROJ_DIR) && chmod 777 .env"
@@ -68,7 +74,7 @@ vendor: ## Composer install
 clear_vendor: ## Delete vendor directory content
 	$(EXEC_PHP) "$(PROJ_DIR) && rm -rf vendor/"
 
-install: build_dev vendor assets init_db ## Install project
+install: build_dev vendor assets create_db  populate_db ## Install project
 
 update: start_dev vendor assets update_db ## Update project
 
