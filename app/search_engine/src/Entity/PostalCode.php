@@ -30,6 +30,7 @@ class PostalCode
      *
      * @ORM\Column(name="code", type="string", length=255, nullable=false)
      * @JMS\Groups({"elasticaPostalCode"})
+     * @JMS\SerializedName("postal_code")
      */
     private $code;
 
@@ -85,6 +86,14 @@ class PostalCode
         $this->code = $code;
         return $this;
     }
+
+	/**
+	 * @return string
+	 */
+	public function getPostalCode(): string
+	{
+		return $this->code;
+	}
 
     /**
      * @return PricingZone
