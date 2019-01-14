@@ -1,0 +1,74 @@
+FROM php:7.2
+
+RUN apt-get update && apt-get install -y \
+        git \
+        jq \
+        libfreetype6-dev \
+        libjpeg62-turbo-dev \
+        libmemcached-dev \
+        libpng-dev \
+        gnupg \
+        build-essential \
+        zip unzip \
+        zlib1g-dev
+
+# node 
+RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - \
+      && apt-get install -y nodejs
+
+# update npm to last version 
+RUN npm i -g npm
+
+# yarn 
+RUN curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
+     && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
+     && apt-get update && apt-get install yarn
+
+# composer 
+RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
+  && curl -o /tmp/composer-setup.sig https://composer.github.io/installer.sig \
+  && php -r "if (hash('SHA384', file_get_contents('/tmp/composer-setup.php')) !== trim(file_get_contents('/tmp/composer-setup.sig'))) { unlink('/tmp/composer-setup.php'); echo 'Invalid installer' . PHP_EOL; exit(1); }" \
+  && php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --snapshot \
+  && rm -f /tmp/composer-setup.*
+
+# composer parallel install RUN composer global require hirak/prestissimo:^0.3
+RUN docker-php-source extract \
+  && docker-php-ext-configure gd \
+      --with-gd \
+      --with-freetype-dir=/usr/include/ \
+      --with-jpeg-dir=/usr/include/ \
+      --with-png-dir=/usr/include/ \
+  && NPROC=$(getconf _NPROCESSORS_ONLN) \
+  && docker-php-ext-install -j${NPROC} gd \
+        mysqli \
+        opcache \
+        pdo_mysql
+
+RUN pecl install memcached-3.0.3 \
+  && docker-php-ext-enable memcached
+
+# Right access
+RUN usermod -u 1000 www-data
+
+# Install wkhtml
+RUN apt-get install -y dpkg
+
+RUN echo "deb http://ftp.fr.debian.org/debian/ jessie main" > /etc/apt/sources.list && apt-get update
+
+#Xdebug
+RUN touch /usr/local/etc/php/conf.d/xdebug.ini; \
+	echo xdebug.remote_enable=1 >> /usr/local/etc/php/conf.d/xdebug.ini; \
+  	echo xdebug.remote_autostart=0 >> /usr/local/etc/php/conf.d/xdebug.ini; \
+  	echo xdebug.remote_connect_back=1 >> /usr/local/etc/php/conf.d/xdebug.ini; \
+  	echo xdebug.remote_port=9000 >> /usr/local/etc/php/conf.d/xdebug.ini; \
+  	echo xdebug.remote_log=/tmp/php5-xdebug.log >> /usr/local/etc/php/conf.d/xdebug.ini;
+RUN	mkdir /root/software
+
+WORKDIR /root/software
+
+RUN curl -Lo xdebug-2.4.0.tgz http://xdebug.org/files/xdebug-2.4.0.tgz && \
+	tar -xvzf xdebug-2.4.0.tgz
+
+RUN docker-php-source delete
+
+

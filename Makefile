@@ -22,14 +22,6 @@ build_dev: ## Build docker project | dev
 start_dev: ## Start the project | dev
 	$(DOCKER_COMPOSE) -p $(DOCKER_PREFIX) up -d --remove-orphans --no-recreate
 
-build_review: ## Build docker project | review
-	$(DOCKER_COMPOSE) -p $(DOCKER_PREFIX) build
-	$(MAKE) rm
-	$(DOCKER_COMPOSE) -f docker-compose-review.yml -p $(DOCKER_PREFIX) up -d
-
-start_review: ## Start the project | review
-	$(DOCKER_COMPOSE) -f docker-compose-review.yml -p $(DOCKER_PREFIX) up -d --remove-orphans --no-recreate
-
 stop: ## Stop all docker project containers
 	-$(DOCKER) stop $(DOCKER_PROJ_CONT)
 
@@ -56,12 +48,16 @@ populate_db: ## load fixtures from sql file
 	$(EXEC_PHP) "$(PROJ_DIR) && $(CONSOLE_EXEC) doctrine:fixtures:load"
 
 chmod: ## Sets cache and log folders rights
-	$(EXEC_PHP) "$(PROJ_DIR) && chmod 777 .env"
+	$(EXEC_PHP) "$(PROJ_DIR) && chmod 777 ./*"
 	$(EXEC_PHP) "$(PROJ_DIR) && chmod 777 -R var/cache"
 	$(EXEC_PHP) "$(PROJ_DIR) && chmod 777 -R src"
+	$(EXEC_PHP) "$(PROJ_DIR) && chmod 777 -R templates"
+	$(EXEC_PHP) "$(PROJ_DIR) && chmod 777 -R assets"
+	$(EXEC_PHP) "$(PROJ_DIR) && chmod 777 -R node_modules"
 	$(EXEC_PHP) "$(PROJ_DIR) && chmod 777 -R config"
 	$(EXEC_PHP) "$(PROJ_DIR) && chmod 777 -R var/log"
 	$(EXEC_PHP) "$(PROJ_DIR) && chmod 777 -R vendor"
+
 
 clear_cache: ## Clear cache
 	$(EXEC_PHP) "$(PROJ_DIR) && $(CONSOLE_EXEC) cache:clear"

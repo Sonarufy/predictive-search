@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Welcome to Search Engine!{% endblock %}
+
+{% block stylesheets %}
+    <!-- CSS file -->
+    {{ encore_entry_link_tags('app') }}
+
+
+{% endblock %}
+
+ {% block body %}
+
+     <div class="s002">
+         <form>
+             <fieldset>
+                 <legend>Chercher votre Ville</legend>
+             </fieldset>
+             <div class="inner-form">
+                 <div class="input-field first-wrap">
+                     <input id="search" type="text" class="form-control" placeholder="What are you looking for?" />
+                 </div>
+                 <div class="input-field fifth-wrap">
+                     <button class="btn-search" type="button">Chercher</button>
+                 </div>
+             </div>
+         </form>
+     </div>
+
+ {% endblock %}
+
+{% block javascripts %}
+    {{ encore_entry_script_tags('app') }}
+
+    <script>
+
+        $(document).ready(function() {
+            var options = {
+                url: function(query) {
+                    return "{{ path('search') }}?keyWord="+query;
+                },
+
+                getValue: "name",
+
+                minCharNumber: 3,
+
+                list: {
+
+                    showAnimation: {
+                        type: "fade", //normal|slide|fade
+                        time: 400,
+                        callback: function() {}
+                    },
+
+                    hideAnimation: {
+                        type: "slide", //normal|slide|fade
+                        time: 400,
+                        callback: function() {}
+                    },
+
+                    maxNumberOfElements: 10,
+                }
+
+            };
+
+            $("#search").easyAutocomplete(options);
+        });
+
+    </script>
+{% endblock %}

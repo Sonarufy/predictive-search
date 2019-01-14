@@ -1,0 +1,195 @@
+# Read the documentation: https://github.com/FriendsOfSymfony/FOSElasticaBundle/blob/master/Resources/doc/setup.md
+fos_elastica:
+    clients:
+        default: { host: elasticsearch, port: 9200 }
+    indexes:
+        app:
+            index_name: app_%kernel.environment%
+            settings:
+                analysis:
+                    analyzer:
+                        general:
+                            type: custom
+                            tokenizer: "standard"
+                            filter: ["lowercase","asciifolding"]
+                        keyword:
+                            type: custom
+                            tokenizer: "keyword"
+                            filter: ["lowercase","asciifolding"]
+                        general_edge_ngram:
+                            type: custom
+                            tokenizer: "standard"
+                            filter: ["lowercase","asciifolding","general_edge_ngram"]
+                        keyword_edge_ngram:
+                            type: custom
+                            tokenizer: "keyword"
+                            filter: ["lowercase","asciifolding","general_edge_ngram"]
+                    filter:
+                        general_edge_ngram:
+                            type: "edgeNGram"
+                            min_gram: 3
+                            max_gram: 15
+            types:
+                pricing_zone:
+                    serializer:
+                        groups: [elasticaPricingZone]
+                    persistence:
+                        driver: orm
+                        model: App\Entity\PricingZone
+                        provider: ~
+                        listener: ~
+                        finder: ~
+                    properties:
+                        name:
+                            type: string
+                        id:
+                            type: long
+                        reference:
+                            type: string
+                        status:
+                            type: boolean
+                        minimal_margin:
+                            type: float
+                        fqs_margin:
+                            type: float
+                        fod_purchase_price_average:
+                            type: float
+                        fqs_purchase_price_average:
+                            type: float
+                        reference_prices:
+                            type: object
+                            properties:
+                                id:
+                                    type: long
+                                price:
+                                    type: float
+                                date:
+                                    type: date
+                                    format: dateOptionalTime
+
+                reference_price:
+                    serializer:
+                        groups: [elasticaReferencePrice]
+                    persistence:
+                        driver: orm
+                        model: App\Entity\ReferencePrice
+                        provider: ~
+                        listener: ~
+                        finder: ~
+                    properties:
+                        id:
+                            type: long
+                        price:
+                            type: float
+                        date:
+                            type: date
+                            format: dateOptionalTime
+                        pricing_zone:
+                            type: object
+                            properties:
+                                id:
+                                    type: long
+                                name:
+                                    type: string
+
+                postal_code:
+                    serializer:
+                        groups: [elasticaPostalCode]
+                    persistence:
+                        driver: orm
+                        model: App\Entity\PostalCode
+                        provider: ~
+                        listener: ~
+                        finder: ~
+                    properties:
+                        id:
+                            type: long
+                        code:
+                            type: string
+#                            analyzer: standard
+#                            index: analyzed
+#                            search_analyzer: standard
+#                            fields:
+#                                raw:
+#                                    type: string
+#                                    index: not_analyzed
+#                                keyword_autocomplete:
+#                                    type: text
+#                                    analyzer: keyword_edge_ngram
+#                                    search_analyzer: keyword
+#                                    index: analyzed
+#                                    store: no
+                        pricing_zone:
+                            type: object
+                            properties:
+                                id:
+                                    type: long
+                                name:
+                                    type: string
+                                reference_prices:
+                                    type: object
+                                    properties:
+                                        id:
+                                            type: long
+                                        price:
+                                            type: float
+                                        date:
+                                            type: date
+                                            format: dateOptionalTime
+                        insees:
+                            type: object
+                            properties:
+                                id:
+                                    type: long
+                                code:
+                                    type: string
+                                town:
+                                    type: string
+                                name:
+                                    type: text
+                                    analyzer: standard
+                                    index: analyzed
+                                    store: no
+                                    search_analyzer: standard
+                                    fields:
+                                        raw:
+                                            type: string
+                                            index: not_analyzed
+                                        low:
+                                            type: text
+                                            analyzer: general
+                                            search_analyzer: general
+                                            index: analyzed
+                                            store: no
+                                        autocomplete:
+                                            type: text
+                                            analyzer: keyword_edge_ngram
+                                            search_analyzer: keyword
+                                            index: analyzed
+                                            store: no
+                                postalCodeRef:
+                                    type: string
+                                enabled:
+                                    type: boolean
+                insee_town:
+                    serializer:
+                        groups: [elasticaInseeTown]
+                    persistence:
+                        driver: orm
+                        model: App\Entity\InseeTown
+                        provider: ~
+                        listener: ~
+                        finder: ~
+                    properties:
+                        id:
+                            type: long
+                        code:
+                            type: string
+                        town:
+                            type: string
+                        name:
+                            type: string
+                        postalCodeRef:
+                            type: string
+                        enabled:
+                            type: boolean
