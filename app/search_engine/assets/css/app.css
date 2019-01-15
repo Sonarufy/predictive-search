@@ -35,6 +35,11 @@ section {
 h1 {
     font-size: 2em;
     margin: 0.67em 0;
+    color: white;
+}
+
+h2 {
+    color: white;
 }
 
 /* Grouping content
@@ -476,13 +481,15 @@ legend {
     font-family: 'Poppins', sans-serif;
     background: url("../images/Searchs_002.png");
     background-size: cover;
-    background-position: center center;
+    background-position: top center;
     padding: 15px;
 }
 
 .s002 form {
     width: 100%;
     max-width: 1190px;
+    position: absolute;
+    top: 50px;
 }
 
 .s002 form legend {
@@ -515,50 +522,49 @@ legend {
     position: absolute;
     width: 100%;
     z-index: 2;
-    background-color: white;
 }
 
-s002 form .inner-form .easy-autocomplete-container ul {
-
-    border-top: 1px dotted #ccc;
-    display: none;
+.s002 form .inner-form .easy-autocomplete-container ul {
+    background-color: white;
     margin-top: 0;
-    padding-bottom: 0;
-    padding-left: 0;
+    padding-top: 10px;
+    padding-bottom: 20px;
+    padding-left: 30px;
+    border: none;
+    display: none;
     position: relative;
     top: -1px;
 }
-s002 form .inner-form .easy-autocomplete-container ul li, s002 form .inner-form .easy-autocomplete-container ul .eac-category {
+
+.s002 form .inner-form .easy-autocomplete-container ul li, s002 form .inner-form .easy-autocomplete-container ul .eac-category {
     background: inherit;
-    border-color: #ccc;
-    border-image: none;
-    border-style: solid;
-    border-width: 0 1px;
     display: block;
     font-size: 14px;
     font-weight: normal;
     padding: 4px 12px;
+    height: 40px;
+    vertical-align: middle;
 }
-s002 form .inner-form .easy-autocomplete-container ul li:last-child {
+.s002 form .inner-form .easy-autocomplete-container ul li:last-child {
     border-radius: 0 0 2px 2px;
     border-width: 0 1px 1px;
 }
-s002 form .inner-form .easy-autocomplete-container ul li.selected {
+.s002 form .inner-form .easy-autocomplete-container ul li.selected {
     background: none repeat scroll 0 0 #ebebeb;
     cursor: pointer;
 }
-s002 form .inner-form .easy-autocomplete-container ul li.selected div {
+.s002 form .inner-form .easy-autocomplete-container ul li.selected div {
     font-weight: normal;
 }
-s002 form .inner-form .easy-autocomplete-container ul li div {
+.s002 form .inner-form .easy-autocomplete-container ul li div {
     display: block;
     font-weight: normal;
     word-break: break-all;
 }
-s002 form .inner-form .easy-autocomplete-container ul li b {
+.s002 form .inner-form .easy-autocomplete-container ul li b {
     font-weight: bold;
 }
-s002 form .inner-form .easy-autocomplete-container ul .eac-category {
+.s002 form .inner-form .easy-autocomplete-container ul .eac-category {
     font-color: #aaa;
     font-style: italic;
 }

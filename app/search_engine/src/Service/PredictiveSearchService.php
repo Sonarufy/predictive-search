@@ -9,10 +9,14 @@
 namespace App\Service;
 
 use Elastica\Client;
-use Elastica\Query\Match;
-use Elastica\Query\BoolQuery;
 use Elastica\Query;
 use Elastica\Query\Term;
+use Elastica\Query\Match;
+use Elastica\Query\BoolQuery;
+use Elastica\Query\Type;
+use Elastica\Query\Ids;
+use Elastica\QueryBuilder;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 /**
  * Class PredictiveSearchService
@@ -31,12 +35,19 @@ class PredictiveSearchService
 	private $client;
 
 	/**
+	 * @var string
+	 */
+	private $indexName;
+
+	/**
 	 * PredictiveSearchService constructor.
 	 * @param Client $client
+	 * @param ParameterBagInterface $params
 	 */
-	public function __construct(Client $client)
+	public function __construct(Client $client, ParameterBagInterface $params)
 	{
 		$this->client = $client;
+		$this->indexName = $params->get('app_index');
 	}
 
 	/**
@@ -80,7 +91,7 @@ class PredictiveSearchService
 			$elasticaQuery->setSize(self::MAX_RESULT_LIMIT);
 		}
 
-		$foundPostalCodes = $this->client->getIndex('app_dev')->search($elasticaQuery);
+		$foundPostalCodes = $this->client->getIndex($this->indexName)->search($elasticaQuery);
 
 		$results = [];
 		foreach ($foundPostalCodes as $postalCode) {
@@ -88,6 +99,39 @@ class PredictiveSearchService
 		}
 
 		return $this->formatResult($keyWord, $results);
+	}
+
+	/**
+	 * @param int $idPostalCode
+	 * @param int $idInseeTown
+	 * @return array
+	 */
+	public function getPostalCodeById(int $idPostalCode, int $idInseeTown)
+	{
+
+		$queryType = new Type();
+		$queryType->setType(self::POSTAL_CODE_TYPE);
+
+		$queryId = new Ids();
+
+		$queryId->addId( $idPostalCode);
+
+		$boolQuery = new BoolQuery();
+
+		$boolQuery
+			->addMust($queryType)
+			->addMust($queryId);
+
+		$elasticaQuery = new Query($boolQuery);
+
+		$foundPostalCodes = $this->client->getIndex($this->indexName)->search($elasticaQuery);
+
+		$results = [];
+		foreach ($foundPostalCodes as $postalCode) {
+			$results[] = $postalCode->getSource();
+		}
+
+		return $this->formatPostalCode($idInseeTown, $results);
 	}
 
 	/**
@@ -108,6 +152,7 @@ class PredictiveSearchService
 
 			foreach ($item['insees'] as $inseeTown) {
 
+				$townId = $inseeTown['id'];
 				$townName = $inseeTown['name'];
 
 				if (is_numeric($keyWord)) {
@@ -115,6 +160,7 @@ class PredictiveSearchService
 					$townList[] = [
 						'id'         => $id,
 						'postalCode' => $postalCode,
+						'townId'     => $townId,
 						'townName'   => $townName,
 						'price'      => $price['price']
 					];
@@ -123,8 +169,46 @@ class PredictiveSearchService
 					$townList[] = [
 						'id'         => $id,
 						'postalCode' => $postalCode,
+						'townId'     => $townId,
 						'townName'   => $townName,
 						'price'      => $price['price']
+					];
+				}
+			}
+		}
+
+		return $townList;
+	}
+
+	/**
+	 * @param int $idInseeTown
+	 * @param array $results
+	 * @return array
+	 */
+	private function formatPostalCode(int $idInseeTown, array $results): array
+	{
+		$townList = [];
+		foreach ($results as $item) {
+
+			$id = $item['id'];
+
+			$postalCode = $item['postal_code'];
+
+			$prices = $item['pricing_zone']['reference_prices'];
+
+			foreach ($item['insees'] as $inseeTown) {
+
+				$townId = $inseeTown['id'];
+				$townName = $inseeTown['name'];
+
+				if ($idInseeTown === $townId) {
+
+					return [
+						'id'         => $id,
+						'postalCode' => $postalCode,
+						'townId'     => $townId,
+						'townName'   => $townName,
+						'prices'      => $prices
 					];
 				}
 			}

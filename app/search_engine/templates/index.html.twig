@@ -24,22 +24,37 @@
                      <button class="btn-search" type="button">Chercher</button>
                  </div>
              </div>
+
+             <div id="details-info"  class="inner-form" style="display: none">
+                 <h1 id="selected-town">Evolution des Prix Pour Votre ville</h1>
+
+             </div>
+
+             <div id="details-chart"  class="inner-form" style="display: none">
+                 <h2>Evolution des Prix Pour Votre ville</h2>
+                 <div id="chartContainer" style="height: 370px; width: 100%;"></div>
+             </div>
          </form>
      </div>
+
 
  {% endblock %}
 
 {% block javascripts %}
     {{ encore_entry_script_tags('app') }}
 
+    <script src="https://canvasjs.com/assets/script/jquery.canvasjs.min.js"></script>
+
     <script>
 
         $(document).ready(function() {
+
             var options = {
                 url: function(query) {
                     return "{{ path('search') }}?keyWord="+query;
                 },
 
+                placeholder: 'Code postale ou nom de la ville',
                 minCharNumber: 3,
 
                 getValue: "postalCode",
@@ -52,7 +67,6 @@
                 },
 
                 list: {
-
                     showAnimation: {
                         type: "fade", //normal|slide|fade
                         time: 400,
@@ -66,11 +80,58 @@
                     },
 
                     maxNumberOfElements: 10,
+
+                    onChooseEvent: function() {
+                        let postalCodeId = $("#search").getSelectedItemData().id;
+                        let inseeTownId = $("#search").getSelectedItemData().townId;
+                        let potalCode = $("#search").getSelectedItemData().postalCode;
+                        let townName = $("#search").getSelectedItemData().townName;
+                        let actualPrice = $("#search").getSelectedItemData().price / 1000;
+
+                        $('#details-info').css("display", "flex");
+                        $('#details-chart').css("display", "flex");
+                        $('#selected-town').html(potalCode + ', ' + townName + ' - Prix Actuel: ' +actualPrice + "€ TTC/litre");
+                        $.getJSON("{{ path('select_town') }}?postalCode="+postalCodeId+"&inseeTown="+inseeTownId, addData);
+                    }
                 }
 
             };
 
             $("#search").easyAutocomplete(options);
+
+            function addData(data) {
+
+                var dataPoints = [];
+
+                var chartOptions =  {
+                    animationEnabled: true,
+                    theme: "light2",
+                    title: {
+                        text: "Daily Sales Data"
+                    },
+                    axisX: {
+                        valueFormatString: "DD MMM YYYY",
+                    },
+                    axisY: {
+                        title: "EURO",
+                        titleFontSize: 24,
+                        includeZero: false
+                    },
+                    data: [{
+                        type: "spline",
+                        yValueFormatString: "$#.###",
+                        dataPoints: dataPoints
+                    }]
+                };
+
+                for (var i = 0; i < data.prices.length; i++) {
+                    dataPoints.push({
+                        x: new Date(data.prices[i].date),
+                        y: data.prices[i].price / 1000
+                    });
+                }
+                $("#chartContainer").CanvasJSChart(chartOptions);
+            }
         });
 
     </script>

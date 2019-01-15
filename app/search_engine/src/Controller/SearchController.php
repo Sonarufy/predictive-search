@@ -17,11 +17,12 @@ class SearchController extends AbstractController
         return $this->render('index.html.twig');
     }
 
-    /**
-     * @Route("/search", name="search", methods={"GET"})
-     * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\JsonResponse
-     */
+	/**
+	 * @Route("/search", name="search", methods={"GET"})
+	 * @param Request $request
+	 * @param PredictiveSearchService $predictiveSearchService
+	 * @return \Symfony\Component\HttpFoundation\JsonResponse
+	 */
     public function search(Request $request, PredictiveSearchService $predictiveSearchService)
     {
         $keyWord = $request->get('keyWord', 'nothing');
@@ -30,4 +31,20 @@ class SearchController extends AbstractController
 
         return $this->json($result);
     }
+
+	/**
+	 * @Route("/select", name="select_town", methods={"GET"})
+	 * @param Request $request
+	 * @param PredictiveSearchService $predictiveSearchService
+	 * @return \Symfony\Component\HttpFoundation\JsonResponse
+	 */
+	public function select(Request $request, PredictiveSearchService $predictiveSearchService)
+	{
+		$idPostalCode = $request->get('postalCode', null);
+		$idInseeTown = $request->get('inseeTown', null);
+
+		$result = $predictiveSearchService->getPostalCodeById($idPostalCode, $idInseeTown);
+
+		return $this->json($result);
+	}
 }
