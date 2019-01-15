@@ -223,4 +223,9 @@ class InseeTown
 
         return $this;
     }
+
+    public function getLabel(): string
+    {
+    	return $this->name;
+    }
 }

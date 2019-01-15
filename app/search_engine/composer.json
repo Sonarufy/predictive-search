@@ -17,6 +17,7 @@
         "symfony/maker-bundle": "^1.11",
         "symfony/orm-pack": "^1.0",
         "symfony/twig-bundle": "4.2.*",
+        "symfony/var-dumper": "4.2.*",
         "symfony/webpack-encore-bundle": "^1.0",
         "symfony/yaml": "4.2.*"
     },
@@ -66,6 +67,7 @@
         }
     },
     "require-dev": {
-        "doctrine/doctrine-fixtures-bundle": "^3.1"
+        "doctrine/doctrine-fixtures-bundle": "^3.1",
+        "symfony/profiler-pack": "^1.0"
     }
 }

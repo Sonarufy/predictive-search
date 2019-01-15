@@ -40,9 +40,16 @@
                     return "{{ path('search') }}?keyWord="+query;
                 },
 
-                getValue: "name",
-
                 minCharNumber: 3,
+
+                getValue: "postalCode",
+
+                template: {
+                    type: "custom",
+                    method: function(value, item) {
+                        return value + ", " + item.townName + " - Prix: 0," + item.price + "€ TTC/Litre";
+                    }
+                },
 
                 list: {
 
