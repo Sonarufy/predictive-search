@@ -15,7 +15,6 @@ use Elastica\Query\Match;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Type;
 use Elastica\Query\Ids;
-use Elastica\QueryBuilder;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 /**

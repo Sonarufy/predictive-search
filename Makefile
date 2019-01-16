@@ -35,6 +35,9 @@ rm: stop ## Delete all docker project containers
 cli: ## Access docker cli
 	$(DOCKER) exec -ti $(DOCKER_PREFIX)_php-fpm_1 zsh -c "stty columns `tput cols`; stty rows `tput lines`;exec zsh"
 
+assets: ## Install/Update the assets without minify
+	$(EXEC_PHP) "$(PROJ_DIR) && npm install && bundle install && npm run prod-no-min"
+
 assets_min: ## Install/Update the assets with minify
 	$(EXEC_PHP) "$(PROJ_DIR) && npm install && bundle install && npm run prod"
 
@@ -47,6 +50,12 @@ update_db: ## doctrine:schema:update
 populate_db: ## load fixtures from sql file
 	$(EXEC_PHP) "$(PROJ_DIR) && $(CONSOLE_EXEC) doctrine:fixtures:load"
 
+create_elastic: ## load fixtures from sql file
+	$(EXEC_PHP) "$(PROJ_DIR) && $(CONSOLE_EXEC) fos:elastica:create"
+
+populate_elastic: ## load fixtures from sql file
+	$(EXEC_PHP) "$(PROJ_DIR) && $(CONSOLE_EXEC) fos:elastica:populate"
+
 chmod: ## Sets cache and log folders rights
 	$(EXEC_PHP) "$(PROJ_DIR) && chmod 777 ./*"
 	$(EXEC_PHP) "$(PROJ_DIR) && chmod 777 -R var/cache"
@@ -57,7 +66,6 @@ chmod: ## Sets cache and log folders rights
 	$(EXEC_PHP) "$(PROJ_DIR) && chmod 777 -R config"
 	$(EXEC_PHP) "$(PROJ_DIR) && chmod 777 -R var/log"
 	$(EXEC_PHP) "$(PROJ_DIR) && chmod 777 -R vendor"
-
 
 clear_cache: ## Clear cache
 	$(EXEC_PHP) "$(PROJ_DIR) && $(CONSOLE_EXEC) cache:clear"
@@ -70,7 +78,7 @@ vendor: ## Composer install
 clear_vendor: ## Delete vendor directory content
 	$(EXEC_PHP) "$(PROJ_DIR) && rm -rf vendor/"
 
-install: build_dev vendor assets create_db  populate_db ## Install project
+install: build_dev vendor assets chmod create_db update_db populate_db create_elastic populate_elastic ## Install project
 
 update: start_dev vendor assets update_db ## Update project
 

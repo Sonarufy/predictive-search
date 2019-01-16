@@ -31,7 +31,7 @@
              </div>
 
              <div id="details-chart"  class="inner-form" style="display: none">
-                 <h2>Evolution des Prix Pour Votre ville</h2>
+                 {#<h2>Evolution des Prix Pour Votre ville</h2>#}
                  <div id="chartContainer" style="height: 370px; width: 100%;"></div>
              </div>
          </form>
@@ -57,12 +57,28 @@
                 placeholder: 'Code postale ou nom de la ville',
                 minCharNumber: 3,
 
-                getValue: "postalCode",
+                getValue: function(element) {
+                    let query = $('#search').val();
+
+                    if ($.isNumeric(query)) {
+                        return element.postalCode;
+                    } else {
+                        return element.townName;
+                    }
+
+                },
 
                 template: {
                     type: "custom",
                     method: function(value, item) {
-                        return value + ", " + item.townName + " - Prix: 0," + item.price + "€ TTC/Litre";
+                        let query = $('#search').val();
+
+                        if ($.isNumeric(query)) {
+                            return value + ", " + item.townName + " - Prix: " + item.price/1000 + "€ TTC/Litre";
+                        } else {
+                            return item.postalCode + ", " + value + " - Prix: " + item.price/1000 + "€ TTC/Litre";
+                        }
+
                     }
                 },
 
@@ -89,7 +105,7 @@
                         let actualPrice = $("#search").getSelectedItemData().price / 1000;
 
                         $('#details-info').css("display", "flex");
-                        $('#details-chart').css("display", "flex");
+                        $('#details-chart').css("display", "block");
                         $('#selected-town').html(potalCode + ', ' + townName + ' - Prix Actuel: ' +actualPrice + "€ TTC/litre");
                         $.getJSON("{{ path('select_town') }}?postalCode="+postalCodeId+"&inseeTown="+inseeTownId, addData);
                     }
@@ -105,9 +121,9 @@
 
                 var chartOptions =  {
                     animationEnabled: true,
-                    theme: "light2",
+                    theme: "dark1",
                     title: {
-                        text: "Daily Sales Data"
+                        text: "Evolution des Prix Pour Votre ville"
                     },
                     axisX: {
                         valueFormatString: "DD MMM YYYY",
@@ -118,8 +134,10 @@
                         includeZero: false
                     },
                     data: [{
-                        type: "spline",
-                        yValueFormatString: "$#.###",
+                        lineColor: '#E78525',
+                        color: '#E78525',
+                        type: "line",
+                        yValueFormatString: " #0.### €",
                         dataPoints: dataPoints
                     }]
                 };
