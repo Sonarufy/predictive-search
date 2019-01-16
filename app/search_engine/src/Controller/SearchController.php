@@ -17,7 +17,7 @@ class SearchController extends AbstractController
         return $this->render('index.html.twig');
     }
 
-	/**
+		/**
 	 * @Route("/search", name="search", methods={"GET"})
 	 * @param Request $request
 	 * @param PredictiveSearchService $predictiveSearchService
